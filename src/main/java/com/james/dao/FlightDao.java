@@ -16,7 +16,7 @@ public interface FlightDao {
 	
 	public List<Flight> findByDepartureAndArrival(String departureCode, String arrivalCode);
 	
-	public List<Flight> findByDepartureAndArrivalAndDepartureDateBetween(String departureCode, String arrivalCode, Date from, Date to);
+	public List<Flight> findByDepartureAndArrivalAndDepartureDateBetween(String departureCode, String arrivalCode, Date from, Date to, boolean hasReturn);
 
 	public List<Flight> findAll();
 

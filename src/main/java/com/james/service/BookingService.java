@@ -64,9 +64,10 @@ public interface BookingService {
 	 * @param arrivalCode 3digit airport code defined by the International Air Transport Association
 	 * @param from date for searching
 	 * @param to date for searching
+	 * @param hasReturn including return ticket or not
 	 * @return list of flights searched by airports and departure data
 	 */
-	public List<Flight> findFlightsByDepartureAndArrivalAndDepartureDateBetween(String departureCode, String arrivalCode, Date from, Date to);
+	public List<Flight> findFlightsByDepartureAndArrivalAndDepartureDateBetween(String departureCode, String arrivalCode, Date from, Date to, boolean hasReturn);
 	
 	/**
 	 * Returns a list of bookings belong to a specific user

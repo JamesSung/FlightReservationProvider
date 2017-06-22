@@ -5,10 +5,12 @@
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.util.Date;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
+import javax.persistence.TemporalType;
 //import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
@@ -136,6 +138,39 @@ public class DaoImplTest extends JpaBaseTestCase{
         List<Flight> flights = em
             .createQuery( "SELECT f FROM flights f WHERE f.departureCode = 'YYZ' and f.arrivalCode = 'ICH' ORDER BY f.departureDate ASC" , Flight.class )
             .getResultList();
+		
+        assertNotNull(flights);
+		
+        flights.forEach(flight -> System.out.println(flight));
+	}
+	
+	@Test
+	public void testFindFlightsByDepartureAndArrivalAndDepartureDateBetween(){
+		
+		TypedQuery<Flight> query = em.createQuery( "SELECT f "
+				+ "FROM flights f WHERE "
+				+ " f.departureCode IN (:departureCode, :arrivalCode) AND" 
+				+ " f.departureCode IN (:arrivalCode, :departureCode) AND"
+				+ " f.departureDate BETWEEN :from AND :to "
+				+ " ORDER BY f.departureCode, f.departureDate ", Flight.class);
+
+		query.setParameter("departureCode","YYZ");
+		query.setParameter("arrivalCode", "JFK");
+
+    	Date from = new Date(System.currentTimeMillis());
+    	
+    	Calendar cal = Calendar.getInstance();
+    	cal.setTime(from);
+    	cal.add(Calendar.DAY_OF_MONTH, 10);
+    	
+    	Date to = cal.getTime();
+    	
+    	
+		query.setParameter("from", from, TemporalType.DATE);
+		query.setParameter("to", to, TemporalType.DATE);
+
+		
+		List<Flight> flights = query.getResultList();
 		
         assertNotNull(flights);
 		

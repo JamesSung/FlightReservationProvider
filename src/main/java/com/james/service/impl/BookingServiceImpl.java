@@ -107,8 +107,8 @@ public class BookingServiceImpl implements BookingService{
 	@Override
 	@Transactional
 	public List<Flight> findFlightsByDepartureAndArrivalAndDepartureDateBetween(String departureCode, String arrivalCode, Date from,
-			Date to) {
-		List<Flight> fls = flightDao.findByDepartureAndArrivalAndDepartureDateBetween(departureCode, arrivalCode, from, to);
+			Date to, boolean hasReturn) {
+		List<Flight> fls = flightDao.findByDepartureAndArrivalAndDepartureDateBetween(departureCode, arrivalCode, from, to, hasReturn);
 
 		if(logger.isDebugEnabled()){
 			logger.debug("BookingServiceImpl.findFlightsByDepartureAndArrivalAndDepartureDateBetween:");

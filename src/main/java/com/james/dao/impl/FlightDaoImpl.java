@@ -1,10 +1,13 @@
 package com.james.dao.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Component;
@@ -49,17 +52,25 @@ public class FlightDaoImpl implements FlightDao{
 	}
 
 	@Override
-	public List<Flight> findByDepartureAndArrivalAndDepartureDateBetween(String departureCode, String arrivalCode, Date from, Date to) {
-        String cond = ("all".equals(departureCode)) ? " ":" f.departureCode = :departureCode AND ";
-        String cond2 = ("all".equals(arrivalCode)) ? " ":" f.arrivalCode = :arrivalCode AND ";
-		TypedQuery<Flight> query = entityManager.createQuery( "SELECT f "
+	public List<Flight> findByDepartureAndArrivalAndDepartureDateBetween(String departureCode, String arrivalCode, Date from, Date to, boolean hasReturn) {
+        String cond = ("all".equals(departureCode)) ? " " : hasReturn ? "f.departureCode IN (:departureCode, :arrivalCode) AND" : " f.departureCode = :departureCode AND ";
+        String cond2 = ("all".equals(arrivalCode)) ? " " : hasReturn ? "f.arrivalCode IN (:arrivalCode, :departureCode) AND" : " f.arrivalCode = :arrivalCode AND ";
+		
+        //looking up direct flights from A to B
+        TypedQuery<Flight> query = entityManager.createQuery( "SELECT f "
 															+ "FROM flights f WHERE "
 															+ cond + cond2
-															+ " f.departureDate BETWEEN :from AND :to ", Flight.class);
-		if(!"all".equals(departureCode)) query.setParameter("departureCode", departureCode);
+															+ " f.departureDate BETWEEN :from AND :to "
+															+ " ORDER BY f.departureCode, f.departureDate ", Flight.class);
+		
+		//native query for direct flights from A to B
+		// db.flights.aggregate([ { $match :{$and:[ { departureCode : { $in: ["YYZ", "JFK"] } }, { arrivalCode : { $in: ["YYZ", "JFK"] } } ]} } ]);
+
+        if(!"all".equals(departureCode)) query.setParameter("departureCode", departureCode);
 		if(!"all".equals(arrivalCode)) query.setParameter("arrivalCode", arrivalCode);
-		query.setParameter("from", from);
-		query.setParameter("to", to);
+		
+		query.setParameter("from", from, TemporalType.DATE);
+		query.setParameter("to", to, TemporalType.DATE);
 		
         return query.getResultList();
 	}
